@@ -96,5 +96,51 @@
     https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js
     https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js
     
-    
-    
+----------------------------------------------------------------------
+## Booking system
+     <script>
+        $(document).ready(function(){
+            $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+            $("button").on("click",function(){
+                $(this).prop("disabled", true);
+                var seatNo =$(this).data("id");
+
+                if(seatNo){
+                    $.ajax({
+                        url:'/seat-book/'+seatNo,
+                        type: 'POST',
+                        success: function(data){
+                            console.log(data);
+                        },
+                        error: function(data){
+                            console.log(data);
+                        }
+                    })
+                }
+            });
+        })
+    </script>
+
+    public function index(){
+        $seats = Seat::all();
+        return view('welcome',compact('seats'));
+    }
+    public function seatBook(Request $request, $id){
+        $data = Seat::findOrFail($id);
+        // dd($data);
+        $data->update([
+            'status'=>'booked',
+        ]);
+        return response()->json([
+            'status'=>'booked',
+            'message'=>'seat booked successfully',
+        ]);
+    }
+
+    Route::post('/seat-book/{id}',[HomeController::class,'seatBook'])->name('seatBook');
+
+
